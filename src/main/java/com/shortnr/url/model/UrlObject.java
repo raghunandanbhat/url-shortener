@@ -1,33 +1,41 @@
 package com.shortnr.url.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
+import org.springframework.data.cassandra.core.mapping.CassandraType;
+import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.data.cassandra.core.mapping.CassandraType.Name;
+
 import java.time.LocalDateTime;
 
-
-@Entity
+@Table(value = "urls")
 public class UrlObject {
-    @Id
-    @GeneratedValue
-    private Long uid;
-    @Lob
-    private String originalUrl;
+    @Id @PrimaryKeyColumn(name = "short_url", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    @CassandraType(type = Name.TEXT)
     private String shortUrl;
+
+    @Column("orig_url")
+    @CassandraType(type = Name.TEXT)
+    private String originalUrl;
+
+    @Column("creation_date")
+    @CassandraType(type = Name.DATE)
     private LocalDateTime urlCreationDate;
+
+    @Column("expiry_date")
+    @CassandraType(type = Name.DATE)
     private LocalDateTime urlExpiryDate;
 
     public UrlObject(){}
 
-    public UrlObject(Long uid,
+    public UrlObject(String shortUrl,
                      String originalUrl,
-                     String shortUrl,
                      LocalDateTime urlCreationDate,
                      LocalDateTime urlExpiryDate){
-        this.uid = uid;
+        this.shortUrl= shortUrl;
         this.originalUrl = originalUrl;
-        this. shortUrl= shortUrl;
         this.urlCreationDate = urlCreationDate;
         this.urlExpiryDate = urlExpiryDate;
     }
@@ -35,13 +43,6 @@ public class UrlObject {
     /*
     * Getters and setters for class members
     * */
-    public Long getUid(){
-        return uid;
-    }
-
-    public void setUid(Long uid){
-        this.uid = uid;
-    }
 
     public String getOriginalUrl(){
         return originalUrl;
@@ -77,8 +78,7 @@ public class UrlObject {
 
     public String urlToString(){
         return "UrlObject{" +
-                "uid: " + uid +
-                ", originalUrl: " + originalUrl +
+                "originalUrl: " + originalUrl +
                 ", shortUrl: " + shortUrl +
                 ", urlCreationDate: " + urlCreationDate +
                 ", urlExpiryDate: " + urlExpiryDate + "}";
