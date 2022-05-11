@@ -1,18 +1,17 @@
 package com.shortnr.url.services;
 
-import com.google.common.hash.Hashing;
-import com.shortnr.url.model.CounterRange;
+
 import com.shortnr.url.model.UrlObject;
 import com.shortnr.url.model.UrlObjectRequest;
 import com.shortnr.url.repository.UrlShortenerServiceRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 import static com.shortnr.url.services.Base62Encoder.toBase64;
 
@@ -22,12 +21,7 @@ public class UrlShortenerService implements UrlShortenerServiceInterface {
     private UrlShortenerServiceRepository urlDb;
 
     @Autowired
-    private CounterRange range;
-
-    @Autowired
     private ZooKeeperCounterService zooKeeperCounterService;
-    @Value("#{range.start}")
-    private long sharedCounter;
 
     @Override
     public UrlObject generateShortUrl(UrlObjectRequest url) {
@@ -38,28 +32,26 @@ public class UrlShortenerService implements UrlShortenerServiceInterface {
 
             urlToSave.setOriginalUrl(url.getUrl());
             urlToSave.setShortUrl(shortenedUrl);
-            urlToSave.setUrlCreationDate(LocalDateTime.now());
-            urlToSave.setUrlExpiryDate(getExpiryDate(url.getExpiryDate(), urlToSave.getUrlCreationDate()));
+            urlToSave.setUrlCreationDate(Instant.now());
+
+            try{
+                urlToSave.setUrlExpiryDate(Instant.parse(url.getExpiryDate()));
+            }catch (DateTimeParseException e){
+                System.out.println("expiry date is null");
+                urlToSave.setUrlExpiryDate(urlToSave.getUrlCreationDate().plus(Duration.ofHours(24)));
+            }
+            System.out.println("Url generated");
 
             return saveUrlToDb(urlToSave);
         }
         return null;
     }
 
-    public synchronized void resetSharedCounterRange(){
-        range = zooKeeperCounterService.getRange();
-        sharedCounter = range.getStart();
-    }
-
     public synchronized String getShortUrlFrom(String origUrl){
         //get counter value and pass it to Base62 encode algorithm
+        long counter = zooKeeperCounterService.getRange();
 
-        if(sharedCounter > range.getEnd()){
-            resetSharedCounterRange();
-        }
-
-        long counter = sharedCounter;
-
+        System.out.println("Counter value form zk server:" + counter);
         return toBase64(counter);
         /*
         String shortUrl = "";
@@ -67,15 +59,6 @@ public class UrlShortenerService implements UrlShortenerServiceInterface {
         shortUrl = Hashing.sha256().hashString(origUrl.concat(timestamp.toString()), StandardCharsets.UTF_8).toString();
         return shortUrl;
         */
-    }
-
-    public LocalDateTime getExpiryDate(String expiryDate, LocalDateTime creationDate){
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        if(StringUtils.isBlank(expiryDate)){
-            return creationDate.plusMinutes(5);
-            //return creationDate.plusYears(1);
-        }
-        return  LocalDateTime.parse(expiryDate);
     }
 
     @Override

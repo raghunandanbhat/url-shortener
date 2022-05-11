@@ -8,7 +8,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 import org.springframework.data.cassandra.core.mapping.CassandraType.Name;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Table(value = "urls")
 public class UrlObject {
@@ -21,19 +21,19 @@ public class UrlObject {
     private String originalUrl;
 
     @Column("creation_date")
-    @CassandraType(type = Name.DATE)
-    private LocalDateTime urlCreationDate;
+    @CassandraType(type = Name.TIMESTAMP)
+    private Instant urlCreationDate;
 
     @Column("expiry_date")
-    @CassandraType(type = Name.DATE)
-    private LocalDateTime urlExpiryDate;
+    @CassandraType(type = Name.TIMESTAMP)
+    private Instant urlExpiryDate;
 
     public UrlObject(){}
 
     public UrlObject(String shortUrl,
                      String originalUrl,
-                     LocalDateTime urlCreationDate,
-                     LocalDateTime urlExpiryDate){
+                     Instant urlCreationDate,
+                     Instant urlExpiryDate){
         this.shortUrl= shortUrl;
         this.originalUrl = originalUrl;
         this.urlCreationDate = urlCreationDate;
@@ -60,19 +60,19 @@ public class UrlObject {
         this.shortUrl = shortUrl;
     }
 
-    public LocalDateTime getUrlCreationDate(){
+    public Instant getUrlCreationDate(){
         return urlCreationDate;
     }
 
-    public void setUrlCreationDate(LocalDateTime creationDate){
+    public void setUrlCreationDate(Instant creationDate){
         this.urlCreationDate = creationDate;
     }
 
-    public LocalDateTime getUrlExpiryDate(){
+    public Instant getUrlExpiryDate(){
         return urlExpiryDate;
     }
 
-    public void setUrlExpiryDate(LocalDateTime expiryDate){
+    public void setUrlExpiryDate(Instant expiryDate){
         this.urlExpiryDate = expiryDate;
     }
 

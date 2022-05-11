@@ -1,7 +1,5 @@
 package com.shortnr.url.model;
 
-import java.time.LocalDateTime;
-
 public class UrlObjectRequest {
     private String url;
     private String expiryDate;

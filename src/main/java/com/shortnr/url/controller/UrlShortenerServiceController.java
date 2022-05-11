@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @RestController
+@RequestMapping("/api/v1")
 public class UrlShortenerServiceController {
 
     @Autowired
@@ -66,7 +67,7 @@ public class UrlShortenerServiceController {
             return new ResponseEntity<>(urlErrorResponse, HttpStatus.OK);
         }
 
-        if(redirectedUrl.getUrlExpiryDate().isBefore(LocalDateTime.now())){
+        if(redirectedUrl.getUrlExpiryDate().isBefore(Instant.now())){
             //You may delete url
             UrlObjectErrorResponse urlErrorResponse = new UrlObjectErrorResponse();
 

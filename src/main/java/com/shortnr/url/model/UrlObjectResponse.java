@@ -1,15 +1,15 @@
 package com.shortnr.url.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class UrlObjectResponse {
     private String url;
     private String shortUrl;
-    private LocalDateTime expiryDate;
+    private Instant expiryDate;
 
     public UrlObjectResponse(){}
 
-    public UrlObjectResponse(String url, String shortUrl, LocalDateTime date){
+    public UrlObjectResponse(String url, String shortUrl, Instant date){
         this.url = url;
         this.shortUrl = shortUrl;
         this.expiryDate = date;
@@ -31,11 +31,11 @@ public class UrlObjectResponse {
         this.shortUrl = shortUrl;
     }
 
-    public LocalDateTime getExpiryDate(){
+    public Instant getExpiryDate(){
         return expiryDate;
     }
 
-    public void setExpiryDate(LocalDateTime expiryDate) {
+    public void setExpiryDate(Instant expiryDate) {
         this.expiryDate = expiryDate;
     }
 
